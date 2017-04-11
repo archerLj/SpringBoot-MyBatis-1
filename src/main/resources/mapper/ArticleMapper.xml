@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--指定接口映射类-->
+<mapper namespace="com.archer.example.dao.ArticleDao">
+
+    <select id="findArticleTitleLike" resultMap="ArticleMap">
+
+        <bind name="titlePatten" value="'%' + title + '%'"/>
+
+        SELECT
+        A.id as article_id,
+        A.title as article_title,
+        A.content as article_content,
+        A.create_time as article_createTime,
+        A.modify_time as article_modifyTime,
+        B.id  as author_id,
+        B.username as author_username,
+        B.nickname as author_nickname,
+        B.birthday as author_birthday,
+        B.register_time  as author_registerTime,
+        c.id as comment_id,
+        C.content as comment_content,
+        C.create_time as comment_createTime
+        FROM article A
+        LEFT JOIN author B ON A.author = B.id
+        LEFT JOIN comment C ON A.id = C.article
+        WHERE A.title LIKE #{titlePatten}
+    </select>
+    <resultMap id="ArticleMap" type="Article">
+        <id property="id" column="article_id"></id>
+        <result property="title" column="article_title"></result>
+        <result property="content" column="article_content"></result>
+        <result property="createTime" column="article_createTime"></result>
+        <result property="modifyTime" column="article_modifyTime"></result>
+        <association property="author" javaType="Author" columnPrefix="author_">
+            <id property="id" column="id"></id>
+            <result property="username" column="username"></result>
+            <result property="nickname" column="nickname"></result>
+            <result property="birthday" column="birthday"></result>
+            <result property="registerTime" column="registerTime"></result>
+        </association>
+        <collection property="comments" ofType="Comment" columnPrefix="comment_">
+            <id property="id" column="id"></id>
+            <result property="content" column="content"></result>
+            <result property="createTime" column="createTime"></result>
+        </collection>
+    </resultMap>
+
+</mapper>
